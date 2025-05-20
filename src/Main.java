@@ -9,7 +9,7 @@ public class Main {
 
         TaskManager taskManager = new TaskManager();
 
-        //TODO Написать тесты
+
         // 1.Создать таску
         System.out.println("Создать таску");
         Task taskForCreate = new Task("Name", "Desc", TaskStatus.NEW);

@@ -1,6 +1,6 @@
 package tasks;
 
-import java.util.Objects;
+
 
 public class Task {
 
@@ -64,8 +64,6 @@ public class Task {
                 ", taskStatus=" + taskStatus +
                 '}';
     }
-
-    //TODO equals and hashcode
 
 
     @Override
