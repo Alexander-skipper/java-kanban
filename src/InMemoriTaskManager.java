@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
-public class TaskManager {
+public class InMemoriTaskManager {
 
     private HashMap<Integer, Task> tasks = new HashMap<>();
     private HashMap<Integer, Subtask> subtasks = new HashMap<>();
