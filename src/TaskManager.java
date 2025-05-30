@@ -53,13 +53,15 @@ public class TaskManager {
     }
 
     public Subtask createSubtask(Subtask subtask) {
+        if (subtask == null || !epics.containsKey(subtask.getEpicId())) {
+            return null;
+        }
         subtask.setId(getNextId());
         subtasks.put(subtask.getId(), subtask);
         Epic epic = epics.get(subtask.getEpicId());
-        if (epic != null) {
             epic.addSubtaskId(subtask.getId());
             updateEpicStatus(epic);
-        }
+
         return subtask;
     }
 
