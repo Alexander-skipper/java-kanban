@@ -1,18 +1,18 @@
 package manager;
 
 import tasks.Task;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    //перенести сюда список истории из InMemoryTaskManager
+
     private static final int MAX_HISTORY_SIZE = 10;
-    private final List<Task> history = new ArrayList<>();
+    private final LinkedList<Task> history = new LinkedList<>();
 
     @Override
     public List<Task> getHistory() {
         //Получить список историй.
-        return new ArrayList<>(history);
+        return new LinkedList<>(history);
     }
 
     @Override
@@ -21,11 +21,11 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (task == null) {
             return;
         }
-        if (history.size() > MAX_HISTORY_SIZE) {
-            history.remove(0);
+        if (history.size() >= MAX_HISTORY_SIZE) {
+            history.removeFirst();
         }
         history.remove(task);
-        history.add(task);
+        history.addLast(task);
 
     }
 }

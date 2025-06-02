@@ -3,13 +3,11 @@ package manager;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public interface TaskManager {
     // Методы для Task
-    ArrayList<Task> getTasks();
+    List<Task> getTasks();
 
     Task getTask(int id);
 
@@ -20,7 +18,7 @@ public interface TaskManager {
     Task deleteTask(int id);
 
     // Методы для Subtask
-    ArrayList<Subtask> getSubtasks();
+    List<Subtask> getSubtasks();
 
     Subtask getSubtasks(int id);
 
@@ -31,7 +29,7 @@ public interface TaskManager {
     Subtask deleteSubtask(int id);
 
     // Методы для Epic
-    ArrayList<Epic> getEpics();
+    List<Epic> getEpics();
 
     Epic getEpic(int id);
 
@@ -41,7 +39,7 @@ public interface TaskManager {
 
     Epic deleteEpic(int id);
 
-    ArrayList<Subtask> getEpicSubtasks(int epicId);
+    List<Subtask> getEpicSubtasks(int epicId);
 
     void deleteAllTasks();
 
