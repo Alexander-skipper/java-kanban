@@ -126,4 +126,31 @@ public class InMemoryTaskManagerTest {
         assertEquals(original.getTaskStatus(), added.getTaskStatus(), "Статус не должен изменяться");
     }
 
+    // Удаление задачи удаляет её из истории.
+    @Test
+    void dtleteTaskRemovesFromHistory() {
+        Task task = taskManager.createTask(new Task("Task", "Desc", TaskStatus.NEW));
+        taskManager.getTask(task.getId());
+        taskManager.deleteTask(task.getId());
+
+        List<Task> history = taskManager.getHistory();
+        assertTrue(history.isEmpty(), "История должна быть пустой после удаления задачи");
+    }
+
+    // Удаление эпика удаляет его подзадачи из истории.
+    @Test
+    void deleteEpicRemovesSubtasksFromHistory() {
+        Epic epic = taskManager.createEpic(new Epic("Epic", "Desc"));
+        Subtask subtask = taskManager.createSubtask(
+                new Subtask("Subtask", "Desc", TaskStatus.NEW, epic.getId()));
+        taskManager.getSubtasks(subtask.getId());
+        taskManager.getEpic(epic.getId());
+        taskManager.deleteEpic(epic.getId());
+
+        List<Task> history = taskManager.getHistory();
+        assertTrue(history.isEmpty(), "История должна быть пустой после удаления эпика");
+    }
 }
+
+
+
