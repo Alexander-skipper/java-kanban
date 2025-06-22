@@ -29,7 +29,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         remove(task.getId());
 
         Node node = new Node(task);
-        LinkLast(node);
+        linkLast(node);
         nodeMap.put(task.getId(), node);
     }
 
@@ -57,7 +57,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     // Добавление узла в конец двусвязного списка.
-    private void LinkLast(Node node) {
+    private void linkLast(Node node) {
         if (tail == null) {
             head = tail = node;
         } else {
