@@ -8,86 +8,72 @@ import tasks.Epic;
 public class Main {
 
     public static void main(String[] args) {
-
         TaskManager taskManager = Managers.getDefault();
 
-
-        // 1.Создать таску
+        // 1. Создать таску
         System.out.println("Создать таску");
-        Task taskForCreate = new Task("Name", "Desc", TaskStatus.NEW);
-        taskManager.createTask(taskForCreate);
+        Task task = new Task("Name", "Desc", TaskStatus.NEW);
+        taskManager.createTask(task);
         System.out.println(taskManager.getTasks());
+        System.out.println("История после создания задачи (должна быть пустая): " + taskManager.getHistory());
         System.out.println();
 
-        // 2.Получить таску
+        // 2. Получить таску (добавится в историю)
         System.out.println("Получить таску");
-        System.out.println(taskManager.getTask(taskForCreate.getId()));
+        System.out.println(taskManager.getTask(task.getId()));
+        System.out.println("История после первого просмотра (1 задача): " + taskManager.getHistory());
         System.out.println();
 
-        // 3. Проверим обновление
-        System.out.println("Проверим обновление");
-        Task taskForUpdate = new Task(taskForCreate.getId(), "New name",
-                taskForCreate.getDescription(), TaskStatus.IN_PROGRESS);
-        taskForUpdate = taskManager.updateTask(taskForUpdate);
-        System.out.println(taskManager.getTasks());
+        // 3. Получить таску еще раз (должна остаться одна запись)
+        System.out.println("Получить таску повторно");
+        System.out.println(taskManager.getTask(task.getId()));
+        System.out.println("История после повторного просмотра (все равно 1 задача): " + taskManager.getHistory());
         System.out.println();
 
-        //4. Удаляем таску
-        System.out.println("Удаляем таску");
-        taskManager.deleteTask(taskForUpdate.getId());
-        System.out.println(taskManager.getTasks());
-        System.out.println();
-
-        //5. Создаём Эпик
+        // 4. Создаём Эпик
         System.out.println("Создаём Эпик");
         Epic epic = new Epic("Отпуск", "Организовать отпуск");
         taskManager.createEpic(epic);
-        System.out.println(taskManager.getEpic(epic.getId()));
+        System.out.println("История после создания эпика (не должна измениться): " + taskManager.getHistory());
         System.out.println();
 
-        //5. Создаём Сабтаски
+        // 5. Просматриваем эпик (добавится в историю)
+        System.out.println("Просматриваем эпик");
+        System.out.println(taskManager.getEpic(epic.getId()));
+        System.out.println("История после просмотра эпика (2 задачи): " + taskManager.getHistory());
+        System.out.println();
+
+        // 6. Создаём Сабтаски
         System.out.println("Создаём Сабтаски");
         Subtask subtask1 = new Subtask("Путёвка", "Выбрать путёвку", TaskStatus.NEW, epic.getId());
         Subtask subtask2 = new Subtask("Билеты", "Купить билеты", TaskStatus.NEW, epic.getId());
         taskManager.createSubtask(subtask1);
         taskManager.createSubtask(subtask2);
-        taskManager.getEpicSubtasks(epic.getId());
-        System.out.println(taskManager.getEpicSubtasks(epic.getId()));
+        System.out.println("История после создания подзадач (не должна измениться): " + taskManager.getHistory());
         System.out.println();
 
-        //6. Проверяем статус Эпика (NEW)
-        System.out.println("Проверяем статус Эпика " + taskManager.getEpic(epic.getId()).getTaskStatus());
+        // 7. Просматриваем подзадачи (добавляются в историю)
+        System.out.println("Просматриваем подзадачи");
+        System.out.println("Подзадача 1: " + taskManager.getSubtasks(subtask1.getId()));
+        System.out.println("Текущая история (3 задачи - задача, эпик, подзадача1): " + taskManager.getHistory());
+        System.out.println("Подзадача 2: " + taskManager.getSubtasks(subtask2.getId()));
+        System.out.println("История после просмотра второй подзадачи (4 задачи): " + taskManager.getHistory());
         System.out.println();
 
-        //7. Меняем статус первого Сабтаска.
-        Subtask updatedSubtask = new Subtask(subtask1.getId(), subtask1.getName(), subtask1.getDescription(),
-                TaskStatus.DONE, subtask1.getEpicId());
-        taskManager.updateSubtask(updatedSubtask);
-        System.out.println("Статус Эпика после изменения одной Сабтаски " + taskManager.getEpic(epic.getId()).getTaskStatus());
+        // 8. Удаляем таску (должна удалиться из истории)
+        System.out.println("Удаляем таску");
+        taskManager.deleteTask(task.getId());
+        System.out.println("История после удаления задачи (3 задачи): " + taskManager.getHistory());
         System.out.println();
 
-        //8.  Меняем статус второго Сабтаска.
-        Subtask updatedSubtask2 = new Subtask(subtask2.getId(), subtask2.getName(), subtask2.getDescription(),
-                TaskStatus.DONE, subtask2.getEpicId());
-        taskManager.updateSubtask(updatedSubtask2);
-        System.out.println("Статус Эпика после изменения одной Сабтаски " + taskManager.getEpic(epic.getId()).getTaskStatus());
-        System.out.println();
-
-        //9. Удаляем Эпик.
+        // 9. Удаляем Эпик (должны удалиться эпик и его подзадачи из истории)
+        System.out.println("Удаляем Эпик");
         taskManager.deleteEpic(epic.getId());
-        System.out.println("Эпики после удаления: " + taskManager.getEpics());
-        System.out.println("Сабтаски после удаления Эпика: " + taskManager.getSubtasks());
+        System.out.println("История после удаления эпика (должна быть пустая): " + taskManager.getHistory());
         System.out.println();
 
-        //10. Проверяем удаление всех задач.
-        taskManager.deleteAllTasks();
-        System.out.println("Все Таски после очистки: " + taskManager.getTasks());
-        System.out.println("Все Сабтаски после очистки: " + taskManager.getSubtasks());
-        System.out.println("Все Эпики после очистки: " + taskManager.getEpics());
-
-        //11.Проверяем историю.
-        System.out.println("Проверяем историю.");
-        System.out.println(taskManager.getHistory());
-        System.out.println();
+        // 10. Проверяем историю после всех операций
+        System.out.println("Финальная проверка истории");
+        System.out.println("История: " + taskManager.getHistory());
     }
 }
