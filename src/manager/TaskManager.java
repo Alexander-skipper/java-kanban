@@ -41,7 +41,15 @@ public interface TaskManager {
 
     List<Subtask> getEpicSubtasks(int epicId);
 
+    // Метод для получения истории
+    List<Task> getHistory();
+
+    // Методы для удаления
     void deleteAllTasks();
 
-    List<Task> getHistory();
+    void deleteAllSubtasks();
+
+    void deleteAllEpics();
+
+    void deleteAll();
 }

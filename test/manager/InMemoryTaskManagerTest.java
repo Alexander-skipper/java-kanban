@@ -128,7 +128,7 @@ public class InMemoryTaskManagerTest {
 
     // Удаление задачи удаляет её из истории.
     @Test
-    void dtleteTaskRemovesFromHistory() {
+    void deleteTaskRemovesFromHistory() {
         Task task = taskManager.createTask(new Task("Task", "Desc", TaskStatus.NEW));
         taskManager.getTask(task.getId());
         taskManager.deleteTask(task.getId());
@@ -149,6 +149,62 @@ public class InMemoryTaskManagerTest {
 
         List<Task> history = taskManager.getHistory();
         assertTrue(history.isEmpty(), "История должна быть пустой после удаления эпика");
+    }
+
+    // Удаляем только таски.
+    @Test
+    void deleteAllTasksRemovesOnlyTasks() {
+        Task task = taskManager.createTask(new Task("Task", "Desc", TaskStatus.NEW));
+        Epic epic = taskManager.createEpic(new Epic("Epic", "Desc"));
+        Subtask subtask = taskManager.createSubtask(new Subtask("Sub", "Desc", TaskStatus.NEW, epic.getId()));
+
+        taskManager.deleteAllTasks();
+
+        assertTrue(taskManager.getTasks().isEmpty(), "Все задачи должны быть удалены");
+        assertFalse(taskManager.getEpics().isEmpty(), "Эпики должны остаться");
+        assertFalse(taskManager.getSubtasks().isEmpty(), "Подзадачи должны остаться");
+    }
+
+    // Удаляем только сабтаски.
+    @Test
+    void deleteAllSubtasksRemovesOnlySubtasks() {
+        Task task = taskManager.createTask(new Task("Task", "Desc", TaskStatus.NEW));
+        Epic epic = taskManager.createEpic(new Epic("Epic", "Desc"));
+        Subtask subtask = taskManager.createSubtask(new Subtask("Sub", "Desc", TaskStatus.NEW, epic.getId()));
+
+        taskManager.deleteAllSubtasks();
+
+        assertFalse(taskManager.getTasks().isEmpty(), "Задачи должны остаться");
+        assertFalse(taskManager.getEpics().isEmpty(), "Эпики должны остаться");
+        assertTrue(taskManager.getSubtasks().isEmpty(), "Все подзадачи должны быть удалены");
+    }
+
+    // Удаляем эпики и их сабтаски.
+    @Test
+    void deleteAllEpicsRemovesEpicsAndSubtasks() {
+        Task task = taskManager.createTask(new Task("Task", "Desc", TaskStatus.NEW));
+        Epic epic = taskManager.createEpic(new Epic("Epic", "Desc"));
+        Subtask subtask = taskManager.createSubtask(new Subtask("Sub", "Desc", TaskStatus.NEW, epic.getId()));
+
+        taskManager.deleteAllEpics();
+
+        assertFalse(taskManager.getTasks().isEmpty(), "Задачи должны остаться");
+        assertTrue(taskManager.getEpics().isEmpty(), "Все эпики должны быть удалены");
+        assertTrue(taskManager.getSubtasks().isEmpty(), "Все подзадачи должны быть удалены");
+    }
+
+    // Удаляем всё.
+    @Test
+    void deleteAllRemovesEverything() {
+        Task task = taskManager.createTask(new Task("Task", "Desc", TaskStatus.NEW));
+        Epic epic = taskManager.createEpic(new Epic("Epic", "Desc"));
+        Subtask subtask = taskManager.createSubtask(new Subtask("Sub", "Desc", TaskStatus.NEW, epic.getId()));
+
+        taskManager.deleteAll();
+
+        assertTrue(taskManager.getTasks().isEmpty(), "Все задачи должны быть удалены");
+        assertTrue(taskManager.getEpics().isEmpty(), "Все эпики должны быть удалены");
+        assertTrue(taskManager.getSubtasks().isEmpty(), "Все подзадачи должны быть удалены");
     }
 }
 
