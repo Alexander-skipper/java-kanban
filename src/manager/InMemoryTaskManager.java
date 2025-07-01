@@ -23,6 +23,7 @@ public class InMemoryTaskManager implements TaskManager {
     // Методы для Task
     @Override
     public List<Task> getTasks() {
+
         return new ArrayList<>(tasks.values());
     }
 
@@ -54,7 +55,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task deleteTask(int id) {
-        return tasks.remove(id);
+        Task task = tasks.remove(id);
+        if (task != null) {
+            historyManager.remove(id);
+        }
+        return task;
     }
 
     // Методы для Subtask
@@ -119,6 +124,7 @@ public class InMemoryTaskManager implements TaskManager {
                 epic.removeSubtaskId(id);
                 updateEpicStatus(epic);
             }
+            historyManager.remove(id);
         }
         return subtask;
     }
@@ -162,8 +168,9 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic != null) {
             for (Integer subtaskId : epic.getSubtasksId()) {
                 subtasks.remove(subtaskId);
+                historyManager.remove(subtaskId);
             }
-
+            historyManager.remove(id);
         }
         return epic;
     }
@@ -186,9 +193,38 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllTasks() {
+        for (Integer taskId : tasks.keySet()) {
+            historyManager.remove(taskId);
+        }
         tasks.clear();
+    }
+
+    @Override
+    public void deleteAllSubtasks() {
+        for (Integer subtaskId : subtasks.keySet()) {
+            historyManager.remove(subtaskId);
+        }
         subtasks.clear();
+        for (Epic epic : epics.values()) {
+            epic.getSubtasksId().clear();
+            updateEpicStatus(epic);
+        }
+    }
+
+    @Override
+    public void deleteAllEpics() {
+        deleteAllSubtasks();
+        for (Integer epicId : epics.keySet()) {
+            historyManager.remove(epicId);
+        }
         epics.clear();
+    }
+
+    @Override
+    public void deleteAll() {
+        deleteAllTasks();
+        deleteAllSubtasks();
+        deleteAllEpics();
         generatorId = 1;
     }
 
