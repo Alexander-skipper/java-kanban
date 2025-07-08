@@ -23,6 +23,11 @@ public class Epic extends Task {
     }
 
     @Override
+    public TaskType getType() {
+        return TaskType.EPIC;
+    }
+
+    @Override
     public void setTaskStatus(TaskStatus taskStatus) {
         super.setTaskStatus(taskStatus);
     }
