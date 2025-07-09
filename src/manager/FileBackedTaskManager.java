@@ -23,11 +23,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         FileBackedTaskManager manager = new FileBackedTaskManager(file, Managers.getDefaultHistory());
 
         if (file.exists() && file.length() > 0) {
-            try {
-                manager.load();
-            } catch (ManagerLoadException e) {
-                System.out.println("Ошибка при загрузке файла " + file.getName() + ": " + e.getMessage());
-            }
+            manager.load();
         }
         return manager;
     }
@@ -35,11 +31,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
 
     // Переопределенные методы Task
-    @Override
-    public List<Task> getTasks() {
-        return super.getTasks();
-    }
-
     @Override
     public Task getTask(int id) {
         Task task = super.getTask(id);
@@ -70,11 +61,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     // Переопределенные методы Subtask
     @Override
-    public List<Subtask> getSubtasks() {
-        return super.getSubtasks();
-    }
-
-    @Override
     public Subtask getSubtasks(int id) {
         Subtask subtask = super.getSubtasks(id);
         save();
@@ -102,17 +88,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return deletedSubtask;
     }
 
-    @Override
-    public List<Subtask> getEpicSubtasks(int epicId) {
-        return super.getEpicSubtasks(epicId);
-    }
-
     // Переопределенные методы Epic
-    @Override
-    public List<Epic> getEpics() {
-        return super.getEpics();
-    }
-
     @Override
     public Epic getEpic(int id) {
         Epic epic = super.getEpic(id);
@@ -168,16 +144,22 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
 
     // Загрузка данных
-        private void load() throws ManagerLoadException {
+        private void load() {
             try {
                 String content = Files.readString(file.toPath());
                 String[] lines = content.split("\n");
 
                 if (lines.length < 2) return;
 
+                int maxId = 0;
+
                 for (int i = 1; i < lines.length; i++) {
                     Task task = CsvFormatter.fromString(lines[i]);
                     if (task == null) continue;
+
+                    if (task.getId() > maxId) {
+                        maxId = task.getId();
+                    }
 
                     switch (task.getType()) {
                         case TASK:
@@ -187,17 +169,23 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                             epics.put(task.getId(), (Epic) task);
                             break;
                         case SUBTASK:
-                            subtasks.put(task.getId(), (Subtask) task);
+                            Subtask subtask = (Subtask) task;
+                            subtasks.put(task.getId(), subtask);
+                            Epic epic = epics.get(subtask.getEpicId());
+                            if (epic != null) {
+                                epic.addSubtaskId(subtask.getId());
+                            }
                             break;
                     }
                 }
+                generatorId = maxId + 1;
             } catch (IOException e) {
                 throw new ManagerLoadException("Не удалось загрузить задачи из файла: " + file.getPath(), e);
             }
         }
 
     // Сохранение данных в файл
-    void save() throws ManagerSaveException {
+    private void save() throws ManagerSaveException {
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(CsvFormatter.CSV_HEADER + "\n"); // Запись заголовка
             for (Task task : getAllTasks()) {

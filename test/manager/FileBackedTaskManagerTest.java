@@ -3,9 +3,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.io.IOException;
-
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tasks.Epic;
 import tasks.Subtask;
@@ -14,14 +12,19 @@ import tasks.TaskStatus;
 
 
 
-public class FileBackedTaskManagerTest {
-    private File tempFile;
-    private FileBackedTaskManager manager;
+public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
-    @BeforeEach
-    void setUP() throws IOException {
-        tempFile = File.createTempFile("data", ".csv");
-        manager = new FileBackedTaskManager(tempFile, Managers.getDefaultHistory());
+    private File tempFile;
+
+
+    @Override
+    protected FileBackedTaskManager createTaskManager() {
+        try {
+            tempFile = File.createTempFile("data", ".csv");
+            return new FileBackedTaskManager(tempFile, Managers.getDefaultHistory());
+        } catch (IOException e) {
+            throw new RuntimeException("Не удалось создать временный файл", e);
+        }
     }
 
     @AfterEach
@@ -31,7 +34,6 @@ public class FileBackedTaskManagerTest {
 
     @Test
     void testSaveAndLoadEmptyManager() {
-        manager.save();
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
         assertTrue(loadedManager.getTasks().isEmpty());
         assertTrue(loadedManager.getEpics().isEmpty());
@@ -41,15 +43,15 @@ public class FileBackedTaskManagerTest {
     @Test
     void testSaveAndLoadTasks() {
         Task task = new Task("Task 1", "Description 1", TaskStatus.NEW);
-        manager.createTask(task);
+        taskManager.createTask(task);
         int taskId = task.getId();
 
         Epic epic = new Epic("Epic 1", "Epic description");
-        manager.createEpic(epic);
+        taskManager.createEpic(epic);
         int epicId = epic.getId();
 
         Subtask subtask = new Subtask("Subtask 1", "Subtask desc", TaskStatus.NEW, epic.getId());
-        manager.createSubtask(subtask);
+        taskManager.createSubtask(subtask);
         int subtaskId = subtask.getId();
 
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
@@ -71,12 +73,12 @@ public class FileBackedTaskManagerTest {
     @Test
     void testTaskUpdateAndSave() {
         Task task = new Task("Original task", "Desc", TaskStatus.NEW);
-        manager.createTask(task);
+        taskManager.createTask(task);
         int taskId = task.getId();
 
         task.setName("Updated task");
         task.setTaskStatus(TaskStatus.IN_PROGRESS);
-        manager.updateTask(task);
+        taskManager.updateTask(task);
 
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
 
@@ -88,15 +90,15 @@ public class FileBackedTaskManagerTest {
     @Test
     void testEpicStatusAfterLoading() {
         Epic epic = new Epic("Epic", "Epic desc");
-        manager.createEpic(epic);
+        taskManager.createEpic(epic);
         int epicId = epic.getId();
 
         Subtask subtask = new Subtask("Subtask", "Desc", TaskStatus.NEW, epicId);
-        manager.createSubtask(subtask);
+        taskManager.createSubtask(subtask);
         int subtaskId = subtask.getId();
 
         subtask.setTaskStatus(TaskStatus.DONE);
-        manager.updateSubtask(subtask);
+        taskManager.updateSubtask(subtask);
 
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
 
@@ -106,10 +108,10 @@ public class FileBackedTaskManagerTest {
     @Test
     void testDeleteTaskAndSave() {
         Task task = new Task("Task to delete", "Desc", TaskStatus.NEW);
-        manager.createTask(task);
+        taskManager.createTask(task);
         int taskId = task.getId();
 
-        manager.deleteTask(taskId);
+        taskManager.deleteTask(taskId);
 
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
 
@@ -130,14 +132,14 @@ public class FileBackedTaskManagerTest {
     @Test
     void testSaveAfterDeletingAllTasks() {
         Task task1 = new Task("Task 1", "Desc", TaskStatus.NEW);
-        manager.createTask(task1);
+        taskManager.createTask(task1);
         int task1Id = task1.getId();
 
         Task task2 = new Task("Task 2", "Desc", TaskStatus.NEW);
-        manager.createTask(task2);
+        taskManager.createTask(task2);
         int task2Id = task2.getId();
 
-        manager.deleteAllTasks();
+        taskManager.deleteAllTasks();
 
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
 
