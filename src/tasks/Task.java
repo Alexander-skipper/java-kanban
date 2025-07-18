@@ -1,7 +1,6 @@
 package tasks;
 
 
-
 public class Task {
 
     private Integer id;
@@ -21,6 +20,10 @@ public class Task {
         this.name = name;
         this.description = description;
         this.taskStatus = taskStatus;
+    }
+
+    public TaskType getType() {
+        return TaskType.TASK;
     }
 
     public Integer getId() {

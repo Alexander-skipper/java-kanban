@@ -1,3 +1,4 @@
+import manager.FileBackedTaskManager;
 import manager.Managers;
 import manager.TaskManager;
 import tasks.Task;
@@ -5,9 +6,12 @@ import tasks.TaskStatus;
 import tasks.Subtask;
 import tasks.Epic;
 
+import java.io.File;
+
 public class Main {
 
     public static void main(String[] args) {
+        File dataFile = new File("resources/data.csv");
         TaskManager taskManager = Managers.getDefault();
 
         // 1. Создать таску
@@ -60,20 +64,37 @@ public class Main {
         System.out.println("История после просмотра второй подзадачи (4 задачи): " + taskManager.getHistory());
         System.out.println();
 
-        // 8. Удаляем таску (должна удалиться из истории)
+        // 8. Проверяем сохранение в файл.
+        System.out.println("Проверка работы с файлом:");
+        TaskManager loadedManager = FileBackedTaskManager.loadFromFile(dataFile);
+        System.out.println("Загруженные задачи: " + loadedManager.getTasks());
+        System.out.println("Загруженные эпики: " + loadedManager.getEpics());
+        System.out.println("Загруженные сабтаски: " + loadedManager.getSubtasks());
+        System.out.println();
+
+        // 9. Удаляем таску (должна удалиться из истории)
         System.out.println("Удаляем таску");
         taskManager.deleteTask(task.getId());
         System.out.println("История после удаления задачи (3 задачи): " + taskManager.getHistory());
         System.out.println();
 
-        // 9. Удаляем Эпик (должны удалиться эпик и его подзадачи из истории)
+        // 10. Удаляем Эпик (должны удалиться эпик и его подзадачи из истории)
         System.out.println("Удаляем Эпик");
         taskManager.deleteEpic(epic.getId());
         System.out.println("История после удаления эпика (должна быть пустая): " + taskManager.getHistory());
         System.out.println();
 
-        // 10. Проверяем историю после всех операций
+        // 11. Проверяем историю после всех операций.
         System.out.println("Финальная проверка истории");
         System.out.println("История: " + taskManager.getHistory());
+        System.out.println();
+
+        // 12. Проверяем удаление из файла.
+        System.out.println("Проверка работы с файлом:");
+        TaskManager newLoadedManager = FileBackedTaskManager.loadFromFile(dataFile);
+        System.out.println("Загруженные задачи: " + newLoadedManager.getTasks());
+        System.out.println("Загруженные эпики: " + newLoadedManager.getEpics());
+        System.out.println("Загруженные сабтаски: " + newLoadedManager.getSubtasks());
+        System.out.println();
     }
 }

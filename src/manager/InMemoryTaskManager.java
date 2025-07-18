@@ -13,11 +13,15 @@ import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private Map<Integer, Task> tasks = new HashMap<>();
-    private Map<Integer, Subtask> subtasks = new HashMap<>();
-    private Map<Integer, Epic> epics = new HashMap<>();
-    private int generatorId = 1;
-    private HistoryManager historyManager = Managers.getDefaultHistory();
+    protected final Map<Integer, Task> tasks = new HashMap<>();
+    protected final Map<Integer, Subtask> subtasks = new HashMap<>();
+    protected final Map<Integer, Epic> epics = new HashMap<>();
+    protected int generatorId = 1;
+    protected HistoryManager historyManager;
+
+    public InMemoryTaskManager() {
+        this.historyManager = Managers.getDefaultHistory();
+    }
 
 
     // Методы для Task
@@ -269,6 +273,6 @@ public class InMemoryTaskManager implements TaskManager {
     private int getNextId() {
         return generatorId++;
     }
-
 }
+
 
