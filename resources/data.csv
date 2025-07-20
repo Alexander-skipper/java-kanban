@@ -1,1 +1,6 @@
-id,type,name,status,description,epic
+id,type,name,status,description,epic, startTime, duration
+5,TASK,Name,NEW,Desc,,2025-07-20T21:44:38.200815300,30
+9,TASK,Непересекающаяся,NEW,Описание,,2025-07-22T01:44:38.206666400,60
+6,EPIC,Отпуск,NEW,Организовать отпуск,,2025-07-21T20:44:38.206666400,
+7,SUBTASK,Путёвка,NEW,Выбрать путёвку,6,2025-07-21T20:44:38.206666400,120
+8,SUBTASK,Билеты,NEW,Купить билеты,6,2025-07-21T23:44:38.206666400,60

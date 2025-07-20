@@ -3,6 +3,9 @@ package manager;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TaskManager {
@@ -52,4 +55,16 @@ public interface TaskManager {
     void deleteAllEpics();
 
     void deleteAll();
+
+    Duration getEpicDuration(int epicId);
+
+    LocalDateTime getEpicStartTime(int epicId);
+
+    LocalDateTime getEpicEndTime(int epicId);
+
+    List<Task> getPrioritizedTasks();
+
+    boolean isTasksIntersect(Task task1, Task task2);
+
+    boolean hasTaskIntersections(Task newTask);
 }

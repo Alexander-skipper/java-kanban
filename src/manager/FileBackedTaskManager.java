@@ -12,7 +12,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private final File file;
 
-
     public FileBackedTaskManager(File file, HistoryManager historyManager) {
         this.file = file;
         this.historyManager = historyManager;
@@ -164,6 +163,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     switch (task.getType()) {
                         case TASK:
                             tasks.put(task.getId(), task);
+                            if (task.getStartTime() != null) {
+                                getPrioritizedTasksSet().add(task);
+                        }
                             break;
                         case EPIC:
                             epics.put(task.getId(), (Epic) task);
@@ -171,6 +173,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         case SUBTASK:
                             Subtask subtask = (Subtask) task;
                             subtasks.put(task.getId(), subtask);
+                            if (subtask.getStartTime() != null) {
+                                getPrioritizedTasksSet().add(subtask);
+                            }
                             Epic epic = epics.get(subtask.getEpicId());
                             if (epic != null) {
                                 epic.addSubtaskId(subtask.getId());
@@ -178,6 +183,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                             break;
                     }
                 }
+                epics.values().forEach(epic -> {
+                    super.updateEpicStatus(epic); // Явно вызываем родительский метод
+                    super.updateEpicTime(epic);  // Явно вызываем родительский метод
+                });
                 generatorId = maxId + 1;
             } catch (IOException e) {
                 throw new ManagerLoadException("Не удалось загрузить задачи из файла: " + file.getPath(), e);

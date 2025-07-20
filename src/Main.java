@@ -1,12 +1,15 @@
 import manager.FileBackedTaskManager;
 import manager.Managers;
 import manager.TaskManager;
+import manager.exceptions.ManagerSaveException;
 import tasks.Task;
 import tasks.TaskStatus;
 import tasks.Subtask;
 import tasks.Epic;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Main {
 
@@ -96,5 +99,75 @@ public class Main {
         System.out.println("Загруженные эпики: " + newLoadedManager.getEpics());
         System.out.println("Загруженные сабтаски: " + newLoadedManager.getSubtasks());
         System.out.println();
+
+        // 13. Создать таску с временными параметрами.
+        System.out.println("Создаем задачу с временным интервалом");
+        LocalDateTime taskTime = LocalDateTime.now().plusHours(1);
+        Task task2 = new Task("Name", "Desc", TaskStatus.NEW,
+                taskTime, Duration.ofMinutes(30));
+        taskManager.createTask(task2);
+        System.out.println("Задача создана: " + task2);
+        System.out.println("Время задачи: " + task2.getStartTime() + " - " + task2.getEndTime());
+        System.out.println();
+
+        // 14. Проверка пересечения задач
+        System.out.println("Проверка запрета пересечения задач");
+        Task overlappingTask = new Task("Пересекающаяся", "Описание", TaskStatus.NEW,
+                taskTime.plusMinutes(15), Duration.ofMinutes(30));
+        try {
+            taskManager.createTask(overlappingTask);
+            System.err.println("ОШИБКА: Система разрешила создать пересекающуюся задачу!");
+        } catch (ManagerSaveException e) {
+            System.out.println("КОРРЕКТНО: " + e.getMessage());
+            System.out.println("Пересекающиеся задачи не добавлены - система работает правильно");
+        }
+        System.out.println();
+
+        // 15. Создаём Эпик с подзадачами с временем.
+        System.out.println("Создаем эпик с временными подзадачами");
+        Epic epic2 = new Epic("Отпуск", "Организовать отпуск");
+        taskManager.createEpic(epic2);
+
+        LocalDateTime subtask1Time = LocalDateTime.now().plusDays(1);
+        Subtask subtask3 = new Subtask("Путёвка", "Выбрать путёвку", TaskStatus.NEW,
+                epic2.getId(), subtask1Time, Duration.ofHours(2));
+
+        LocalDateTime subtask2Time = subtask1Time.plusHours(3);
+        Subtask subtask4 = new Subtask("Билеты", "Купить билеты", TaskStatus.NEW,
+                epic2.getId(), subtask2Time, Duration.ofHours(1));
+
+        taskManager.createSubtask(subtask3);
+        taskManager.createSubtask(subtask4);
+
+        System.out.println("Время эпика: " + epic2.getStartTime() + " - " + epic2.getEndTime());
+        System.out.println("Длительность эпика: " +
+                taskManager.getEpicDuration(epic2.getId()).toHours() + " часов");
+        System.out.println();
+
+        // 16. Проверка пересечения с подзадачами
+        System.out.println("Проверка запрета пересечения с подзадачами");
+        Task overlappingWithSubtask = new Task("Пересекается с подзадачей", "Описание",
+                TaskStatus.NEW, subtask1Time.plusMinutes(30),
+                Duration.ofHours(1));
+        try {
+            taskManager.createTask(overlappingWithSubtask);
+            System.err.println("ОШИБКА: Система разрешила пересечение с подзадачей!");
+        } catch (ManagerSaveException e) {
+            System.out.println("КОРРЕКТНО: " + e.getMessage());
+            System.out.println("Пересечения с подзадачами запрещены - система работает правильно");
+        }
+        System.out.println();
+
+        // 17. Проверка НЕпересекающихся задач
+        System.out.println("Проверка создания НЕпересекающихся задач");
+        Task nonOverlappingTask = new Task("Непересекающаяся", "Описание", TaskStatus.NEW,
+                subtask1Time.plusHours(5), Duration.ofHours(1));
+        try {
+            taskManager.createTask(nonOverlappingTask);
+            System.out.println("КОРРЕКТНО: Непересекающаяся задача создана успешно");
+            System.out.println("Все задачи: " + taskManager.getTasks());
+        } catch (ManagerSaveException e) {
+            System.err.println("ОШИБКА: " + e.getMessage());
+        }
     }
 }

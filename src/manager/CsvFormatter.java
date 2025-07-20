@@ -1,9 +1,12 @@
 package manager;
 import tasks.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class CsvFormatter {
 
-    public static final String CSV_HEADER = "id,type,name,status,description,epic";
+    public static final String CSV_HEADER = "id,type,name,status,description,epic, startTime, duration";
 
 
     // Преобразование задачи в CSV строку
@@ -15,13 +18,18 @@ public class CsvFormatter {
             epicField = String.valueOf(((Subtask) task).getEpicId());
         }
 
+        String startTime = task.getStartTime() != null ? task.getStartTime().toString() : "";
+        String duration = task.getDuration() != null ? String.valueOf(task.getDuration().toMinutes()) : "";
+
         return String.join(",",
                 String.valueOf(task.getId()),
                 task.getType().name(),
                 task.getName(),
                 task.getTaskStatus().name(),
                 task.getDescription(),
-                epicField);
+                epicField,
+                startTime,
+                duration);
     }
 
     // Создание задачи из CSV строки
@@ -36,19 +44,30 @@ public class CsvFormatter {
         String name = fields[2];
         TaskStatus status = TaskStatus.valueOf(fields[3]);
         String description = fields[4];
+        String epicIdStr = fields.length > 5 ? fields[5] : "";
+        String startTimeStr = fields.length > 6 ? fields[6] : "";
+        String durationStr = fields.length > 7 ? fields[7] : "";
+
+        LocalDateTime startTime = !startTimeStr.isEmpty() ? LocalDateTime.parse(startTimeStr) : null;
+        Duration duration = !durationStr.isEmpty() ? Duration.ofMinutes(Long.parseLong(durationStr)) : null;
 
         switch (type) {
             case TASK:
-                return new Task(id, name, description, status);
+                Task task = new Task(id, name, description, status);
+                task.setStartTime(startTime);
+                task.setDuration(duration);
+                return task;
             case EPIC:
                 Epic epic = new Epic(name, description);
                 epic.setId(id);
                 epic.setTaskStatus(status);
                 return epic;
             case SUBTASK:
-                int epicId = fields.length > 5 ? Integer.parseInt(fields[5]) : 0;
+                int epicId = !epicIdStr.isEmpty() ? Integer.parseInt(epicIdStr) : 0;
                 Subtask subtask = new Subtask(name, description, status, epicId);
                 subtask.setId(id);
+                subtask.setStartTime(startTime);
+                subtask.setDuration(duration);
                 return subtask;
             default:
                 return null;
