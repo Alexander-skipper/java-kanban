@@ -27,8 +27,14 @@ public class InMemoryTaskManager implements TaskManager {
         return timeCompare != 0 ? timeCompare : t1.getId() - t2.getId();
     });
 
+    protected void addToPrioritizedTasks(Task task) {
+        if (task != null && task.getStartTime() != null) {
+            prioritizedTasks.add(task);
+        }
+    }
+
     protected Set<Task> getPrioritizedTasksSet() {
-        return prioritizedTasks;
+        return new HashSet<>(prioritizedTasks);
     }
 
     public InMemoryTaskManager() {
@@ -196,7 +202,10 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.remove(id);
         if (epic != null) {
             epic.getSubtasksId().forEach(subtaskId -> {
-                subtasks.remove(subtaskId);
+                Subtask subtask = subtasks.remove(subtaskId);
+                if (subtask != null) {
+                    prioritizedTasks.remove(subtask);
+                }
                 historyManager.remove(subtaskId);
             });
             historyManager.remove(id);
@@ -374,10 +383,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     private int getNextId() {
         return generatorId++;
-    }
-
-    private void addHistory(Task task) {
-        historyManager.add(task);
     }
 }
 
