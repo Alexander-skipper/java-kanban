@@ -1,5 +1,7 @@
 package tasks;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Task {
 
@@ -7,6 +9,8 @@ public class Task {
     private String name;
     private String description;
     private TaskStatus taskStatus;
+    private Duration duration;
+    private LocalDateTime startTime;
 
 
     public Task(String name, String description, TaskStatus taskStatus) {
@@ -15,11 +19,30 @@ public class Task {
         this.taskStatus = taskStatus;
     }
 
+    public Task(String name, String description, TaskStatus taskStatus,
+                LocalDateTime startTime, Duration duration) {
+        this.name = name;
+        this.description = description;
+        this.taskStatus = taskStatus;
+        this.startTime = startTime;
+        this.duration = duration;
+    }
+
     public Task(Integer id, String name, String description, TaskStatus taskStatus) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.taskStatus = taskStatus;
+    }
+
+    public Task(Integer id, String name, String description, TaskStatus taskStatus, LocalDateTime startTime,
+        Duration duration) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.taskStatus = taskStatus;
+        this.startTime = startTime;
+        this.duration = duration;
     }
 
     public TaskType getType() {
@@ -58,6 +81,29 @@ public class Task {
         this.taskStatus = taskStatus;
     }
 
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getEndTime() {
+        if (startTime == null || duration == null) {
+            return null;
+        }
+        return startTime.plus(duration);
+    }
+
     @Override
     public String toString() {
         return "Task{" +
@@ -65,6 +111,8 @@ public class Task {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", taskStatus=" + taskStatus +
+                ", duration=" + duration +
+                ",startTime=" + startTime +
                 '}';
     }
 
